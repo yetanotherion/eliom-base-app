@@ -193,6 +193,7 @@ let password_form ?a ~service () =
 
 let multiple_email_div_id = "multiple_email"
 }}
+
 {server{
 let rpc_emails_and_params_of_userid =
   server_function Json.t<int64> Eba_user.emails_and_params_of_userid
@@ -211,10 +212,30 @@ let rpc_delete_email =
 
 let rpc_send_mail_confirmation =
   server_function Json.t<string> Eba_user.send_mail_confirmation
+
+let emails_and_params_of_userid = rpc_emails_and_params_of_userid
+let add_email_to_user = rpc_add_email_to_user
+let update_users_primary_email = rpc_update_users_primary_email
+let delete_email = rpc_delete_email
+let send_mail_confirmation = rpc_send_mail_confirmation
 }}
 
 {client{
+  let emails_and_params_of_userid id = %rpc_emails_and_params_of_userid id
+  let add_email_to_user arg = %rpc_add_email_to_user arg
+  let update_users_primary_email email = %rpc_update_users_primary_email email
+  let delete_email email = %rpc_delete_email email
+  let send_mail_confirmation email = %rpc_send_mail_confirmation email
+}}
 
+
+{shared{
+
+let emails_and_params_of_userid_cache: (int64, string) Eliom_cscache.t =
+                                          Eliom_cscache.create ()
+}}
+
+{client{
 module Model = struct
     type activation_state = [`Unit | `Act_key_sent | `Activated]
     type non_primary_mail = {
